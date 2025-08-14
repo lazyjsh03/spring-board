@@ -1,0 +1,53 @@
+# 실행할 서비스(컨테이너)들 정의
+services:
+  # MySQL 데이터베이스 서비스
+  db:
+    image: mysql:8.0
+    container_name: board-db
+    restart: always
+    ports:
+      # 내 PC의 3306 포트를 컨테이너의 3306 포트와 연결
+      - "3306:3306"
+    environment:
+      # --- 중요! ---
+      # 아래 비밀번호들을 반드시 자신만의 강력한 비밀번호로 변경하세요.
+      MYSQL_ROOT_PASSWORD: wptmdgus03
+      MYSQL_DATABASE: board_db
+      MYSQL_USER: jsh03
+      MYSQL_PASSWORD: wptmdgus03
+    volumes:
+      # DB 데이터를 내 PC에 저장하여 데이터 영속성 확보
+      - db-data:/var/lib/mysql
+    command:
+      # 타임존 및 문자셋 설정
+      - --character-set-server=utf8mb4
+      - --collation-server=utf8mb4_unicode_ci
+    healthcheck:
+      test: [ "CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "root", "-p${MYSQL_ROOT_PASSWORD}" ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
+
+  # Spring Boot 애플리케이션 서비스
+  app:
+    build: .  # 현재 폴더의 Dockerfile을 사용해 이미지를 빌드
+    container_name: board-app
+    depends_on:
+      db:
+        condition: service_healthy  # db 서비스가 실행된 후에 app 서비스를 실행
+    ports:
+      # 내 PC의 8080 포트를 컨테이너의 8080 포트와 연결
+      - "8080:8080"
+    environment:
+      # Spring Boot 설정값들을 환경 변수로 주입
+      # --- 중요! ---
+      # host 이름으로 localhost가 아닌 서비스 이름 'db'를 사용해야 합니다.
+      SPRING_DATASOURCE_URL: jdbc:mysql://db:3306/board_db?useSSL=false&allowPublicKeyRetrieval=true
+      SPRING_DATASOURCE_USERNAME: jsh03
+      SPRING_DATASOURCE_PASSWORD: wptmdgus03
+      SPRING_JPA_HIBERNATE_DDL_AUTO: update
+
+# 데이터 영속성을 위해 사용할 Docker 볼륨 정의
+volumes:
+  db-data:
