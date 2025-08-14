@@ -5,12 +5,15 @@ import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import org.springframework.data.annotation.CreatedDate;
+import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 import java.time.LocalDateTime;
 
 @Entity
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
+@EntityListeners(AuditingEntityListener.class)
 public class Post {
 
     @Id
@@ -24,17 +27,24 @@ public class Post {
     @Column(name = "content", nullable = false)
     private String content;
 
-    @Column(name = "created_at", nullable = false)
+    @CreatedDate
+    @Column(name = "created_at", nullable = false, updatable = false)
     private LocalDateTime createdAt;
 
     @Column(name = "updated_at")
     private LocalDateTime updatedAt;
 
     @Column(name = "is_deleted",  nullable = false)
-    private boolean is_deleted;
+    private boolean is_deleted = false;
 
     @Builder
     public Post(String title, String content){
+        this.title = title;
+        this.content = content;
+    }
+
+    public void update(String title, String content) {
+
         this.title = title;
         this.content = content;
     }
