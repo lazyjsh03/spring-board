@@ -11,10 +11,10 @@ services:
     environment:
       # --- 중요! ---
       # 아래 비밀번호들을 반드시 자신만의 강력한 비밀번호로 변경하세요.
-      MYSQL_ROOT_PASSWORD: wptmdgus03
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
       MYSQL_DATABASE: board_db
-      MYSQL_USER: jsh03
-      MYSQL_PASSWORD: wptmdgus03
+      MYSQL_USER: ${MYSQL_USER}
+      MYSQL_PASSWORD: ${MYSQL_PASSWORD}
     volumes:
       # DB 데이터를 내 PC에 저장하여 데이터 영속성 확보
       - db-data:/var/lib/mysql
@@ -44,8 +44,8 @@ services:
       # --- 중요! ---
       # host 이름으로 localhost가 아닌 서비스 이름 'db'를 사용해야 합니다.
       SPRING_DATASOURCE_URL: jdbc:mysql://db:3306/board_db?useSSL=false&allowPublicKeyRetrieval=true
-      SPRING_DATASOURCE_USERNAME: jsh03
-      SPRING_DATASOURCE_PASSWORD: wptmdgus03
+      SPRING_DATASOURCE_USERNAME: ${MYSQL_USER}
+      SPRING_DATASOURCE_PASSWORD: ${MYSQL_PASSWORD}
       SPRING_JPA_HIBERNATE_DDL_AUTO: update
 
 # 데이터 영속성을 위해 사용할 Docker 볼륨 정의
